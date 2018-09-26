@@ -57,6 +57,8 @@ func TestAccCloudFunctionsFunction_basic(t *testing.T) {
 						"description", "test function"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs6"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_HTTP, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -105,6 +107,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs6"),
 					testAccCloudFunctionsFunctionHasLabel("my-label", "my-label-value", &function),
 				),
 			},
@@ -115,6 +119,8 @@ func TestAccCloudFunctionsFunction_update(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "256"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs8"),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"description", "test function updated"),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -159,6 +165,8 @@ func TestAccCloudFunctionsFunction_pubsub(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs6"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_TOPIC, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -203,6 +211,8 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs6"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_BUCKET, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -225,6 +235,8 @@ func TestAccCloudFunctionsFunction_bucket(t *testing.T) {
 						funcResourceName, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
 						"available_memory_mb", "128"),
+					resource.TestCheckResourceAttr(funcResourceName,
+						"runtime", "nodejs6"),
 					testAccCloudFunctionsFunctionSource(fmt.Sprintf("gs://%s/index.zip", bucketName), &function),
 					testAccCloudFunctionsFunctionTrigger(FUNCTION_TRIGGER_BUCKET, &function),
 					resource.TestCheckResourceAttr(funcResourceName,
@@ -460,6 +472,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_http          = true
   timeout               = 91
   entry_point           = "helloGET"
+  runtime               = "nodejs6"
   labels {
 	my-label = "my-updated-label-value"
 	a-new-label = "a-new-label-value"
@@ -496,6 +509,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_topic         = "${google_pubsub_topic.sub.name}"
   timeout               = 61
   entry_point           = "helloPubSub"
+  runtime               = "nodejs6"
   retry_on_failure      = true
 }`, bucketName, zipFilePath, topic, functionName)
 }
@@ -521,6 +535,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_bucket        = "${google_storage_bucket.bucket.name}"
   timeout               = 61
   entry_point           = "helloGCS"
+  runtime               = "nodejs6"
   retry_on_failure      = true
 }`, bucketName, zipFilePath, functionName)
 }
@@ -546,5 +561,6 @@ resource "google_cloudfunctions_function" "function" {
   trigger_bucket        = "${google_storage_bucket.bucket.name}"
   timeout               = 61
   entry_point           = "helloGCS"
+  runtime               = "nodejs6"
 }`, bucketName, zipFilePath, functionName)
 }

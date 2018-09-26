@@ -35,6 +35,7 @@ resource "google_cloudfunctions_function" "function" {
   trigger_http          = true
   timeout               = 60
   entry_point           = "helloGET"
+  runtime               = "nodejs6"
   labels {
     my-label = "my-label-value"
   }
@@ -63,6 +64,8 @@ The following arguments are supported:
 * `timeout` - (Optional) Timeout (in seconds) for the function. Default value is 60 seconds. Cannot be more than 540 seconds.
 
 * `entry_point` - (Optional) Name of a JavaScript function that will be executed when the Google Cloud Function is triggered.
+
+* `runtime` - (Optional) Environment runtime, used by function. Default value is nodejs6. Allowed values are: nodejs6, nodejs8, and python37.
 
 * `trigger_http` - (Optional) Boolean variable. Any HTTP request (of a supported type) to the endpoint will trigger function execution. Supported HTTP request types are: POST, PUT, GET, DELETE, and OPTIONS. Endpoint is returned as `https_trigger_url`. Cannot be used with `trigger_bucket` and `trigger_topic`.
 

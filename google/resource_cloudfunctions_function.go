@@ -27,11 +27,15 @@ var functionAllowedMemory = map[int]bool{
 	2048: true,
 }
 
+var validCloudFunctionRuntime = validation.StringInSlice([]string{"nodejs6", "nodejs8", "python37"}, true)
+
 // For now CloudFunctions are allowed only in the following locations.
 // Please see https://cloud.google.com/about/locations/
 var validCloudFunctionRegion = validation.StringInSlice([]string{"us-central1", "us-east1", "europe-west1", "asia-northeast1"}, true)
 
 const functionDefaultAllowedMemoryMb = 256
+
+const functionDefaultAllowedRuntime = "nodejs6"
 
 type cloudFunctionId struct {
 	Project string
@@ -172,6 +176,14 @@ func resourceCloudFunctionsFunction() *schema.Resource {
 			"environment_variables": {
 				Type:     schema.TypeMap,
 				Optional: true,
+			},
+
+			"runtime": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      functionDefaultAllowedRuntime,
+				ValidateFunc: validCloudFunctionRuntime,
 			},
 
 			"trigger_bucket": {
@@ -328,6 +340,10 @@ func resourceCloudFunctionsCreate(d *schema.ResourceData, meta interface{}) erro
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 	}
 
+	if v, ok := d.GetOk("runtime"); ok {
+		function.Runtime = v.(string)
+	}
+
 	log.Printf("[DEBUG] Creating cloud function: %s", function.Name)
 	op, err := config.clientCloudFunctions.Projects.Locations.Functions.Create(
 		cloudFuncId.locationId(), function).Do()
@@ -383,6 +399,8 @@ func resourceCloudFunctionsRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("source_archive_bucket", bucket)
 		d.Set("source_archive_object", object)
 	}
+
+	d.Set("runtime", function.Runtime)
 
 	if function.HttpsTrigger != nil {
 		d.Set("trigger_http", true)
@@ -453,6 +471,11 @@ func resourceCloudFunctionsUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("environment_variables") {
 		function.EnvironmentVariables = expandEnvironmentVariables(d)
 		updateMaskArr = append(updateMaskArr, "environment_variables")
+	}
+
+	if d.HasChange("runtime") {
+		function.Runtime = d.Get("description").(string)
+		updateMaskArr = append(updateMaskArr, "runtime")
 	}
 
 	if d.HasChange("retry_on_failure") {
